@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="hr">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Stat & Mat</title>
+      <link
+         rel="stylesheet"
+         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      />
+      <script
+         id="MathJax-script"
+         async
+         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+      ></script>
+
+      <style>
+         :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1d4ed8;
+            --background-color: #e8e8e8;
+            --text-color: #1e293b;
+            --menu-bg-color: white;
+            --menu-border-color: #e2e8f0;
+            --border-color: #e2e8f0;
+            --card-bg-color: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --footer-bg-color: #f8fafc;
+         }
+
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+         }
+
+         html {
+            scroll-behavior: smooth;
+            overflow-y: scroll;
+            scrollbar-width: thin;
+            scrollbar-color: #3b82f6 #f0f7ff;
+         }
+
+         body::-webkit-scrollbar {
+            width: 8px;
+         }
+
+         body::-webkit-scrollbar-track {
+            background: #f0f7ff;
+         }
+
+         body::-webkit-scrollbar-thumb {
+            background-color: #3b82f6;
+            border-radius: 10px;
+            border: 2px solid #f0f7ff;
+         }
+
+         body {
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+         }
+
+         header {
+            background: var(--menu-bg-color);
+            padding: 1rem;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            transition: all 0.3s ease;
+         }
+
+         .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+         }
+
+         .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
+         }
+
+         .logo:hover {
+            transform: scale(1.05);
+         }
+
+         .logo-image {
+            height: 40px;
+            vertical-align: middle;
+         }
+
+         nav {
+            display: flex;
+            gap: 1rem;
+         }
+
+         nav a {
+            text-decoration: none;
+            font-weight: 500;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.5rem;
+         }
+
+         nav a:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+         }
+
+         .hero {
+            margin-top: 6rem;
+            padding: 4rem 2rem;
+            text-align: center;
+            background-color: var(--secondary-color);
+            background-image: url("/sprites/hero.background4.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            border-radius: 2rem;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            transition: all 0.3s ease;
+         }
+
+         .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+         }
+
+         .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+         }
+
+         .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+         }
+
+         .hero-button {
+            padding: 0.75rem 2rem;
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            border-radius: 2rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+         }
+
+         .hero-button:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+         }
+
+         .subscription-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 2rem;
+            padding: 0 2rem;
+         }
+
+         .plan-box {
+            background-color: var(--card-bg-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            transition: all 0.3s ease;
+         }
+
+         .plan-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px var(--shadow-color);
+         }
+
+         .plan-box h3 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+         }
+
+         .plan-box button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+         }
+
+         .plan-box button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+         }
+
+         .info-section {
+            padding: 3rem 2rem;
+            background: var(--card-bg-color);
+            margin-top: 1.5rem;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+         }
+
+         .info-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+         }
+
+         .info-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+         }
+
+         .info-section p {
+            text-align: center;
+            font-size: 1.125rem;
+            margin-bottom: 1.5rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+         }
+
+         .info-section ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+         }
+
+         .info-section li {
+            font-size: 1.125rem;
+            padding: 0.5rem 1rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+         }
+
+         .info-section li:hover {
+            transform: translateX(5px);
+            color: var(--primary-color);
+         }
+
+         .section-divider {
+            height: 2px;
+            background-color: #ccc;
+            margin: 1.5rem auto;
+            width: 80%;
+            max-width: 800px;
+         }
+
+         footer {
+            text-align: center;
+            padding: 2rem;
+            background: var(--footer-bg-color);
+            margin-top: 1rem;
+            box-shadow: 0 -1px 3px var(--shadow-color);
+         }
+
+         footer p {
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+         }
+
+         footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            padding: 0.3rem 0.5rem;
+            border-radius: 0.3rem;
+         }
+
+         footer a:hover {
+            background-color: var(--primary-color);
+            color: white;
+         }
+
+         .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+         }
+
+         #kontakt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            gap: 1rem;
+         }
+
+         #kontakt h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+         }
+
+         .kontakt-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+         }
+
+         .kontakt-content img {
+            width: 250px;
+            height: 250px;
+            object-fit: contain;
+            transition: all 0.3s ease;
+         }
+
+         .kontakt-content img:hover {
+            transform: scale(1.05);
+         }
+
+         .kontakt-content div {
+            display: flex;
+            flex-direction: column;
+         }
+
+         .kontakt-content p {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+         }
+
+         .kontakt-content ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+         }
+
+         .kontakt-content li {
+            font-size: 1.125rem;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+         }
+
+         .kontakt-content li:hover {
+            transform: translateX(5px);
+            color: var(--primary-color);
+         }
+
+         /* Ask Perplexity (chatbot) removed */
+
+         @media (max-width: 768px) {
+            .header-container {
+               flex-direction: column;
+               align-items: center;
+            }
+
+            nav {
+               margin-top: 1rem;
+               display: flex;
+               flex-wrap: wrap;
+               justify-content: center;
+            }
+
+            nav a {
+               margin: 0.25rem;
+            }
+
+            .hero {
+               margin-top: 9rem; /* Updated margin-top */
+               padding: 2rem 1rem;
+            }
+
+            .hero h1 {
+               font-size: 1.75rem;
+            }
+
+            .hero p {
+               font-size: 1rem;
+            }
+
+            .button-container {
+               flex-direction: column;
+            }
+
+            .hero-button {
+               width: 100%;
+               margin-bottom: 0.5rem;
+            }
+
+            .subscription-container {
+               flex-direction: column;
+               align-items: center;
+            }
+
+            .plan-box {
+               width: 100%;
+               max-width: 300px;
+            }
+
+            .info-section h2 {
+               font-size: 1.75rem;
+            }
+
+            .info-section p,
+            .info-section li {
+               font-size: 1rem;
+            }
+
+            #kontakt {
+               padding: 1rem;
+            }
+
+            .kontakt-content {
+               flex-direction: column;
+               align-items: center;
+            }
+
+            .kontakt-content img {
+               width: 200px;
+               height: 200px;
+            }
+
+            .kontakt-content div {
+               text-align: center;
+            }
+
+            .kontakt-content p,
+            .kontakt-content li {
+               font-size: 1rem;
+            }
+
+            .footer-links {
+               flex-direction: column;
+               gap: 0.5rem;
+            }
+
+            .desktop-only {
+               display: none;
+            }
+         }
+
+         @media (max-width: 480px) {
+            .hero h1 {
+               font-size: 1.5rem;
+            }
+
+            .hero p {
+               font-size: 0.9rem;
+            }
+
+            .info-section h2 {
+               font-size: 1.5rem;
+            }
+
+            .kontakt-content img {
+               width: 150px;
+               height: 150px;
+            }
+         }
+
+         @media (min-width: 769px) {
+            .desktop-only {
+               display: inline;
+            }
+         }
+      </style>
+   </head>
+   <body>
+      <header>
+         <div class="header-container">
+            <a href="/" class="logo">
+               <img
+                  src="/sprites/logo.ico"
+                  alt="Stat&Mat Logo"
+                  class="logo-image"
+               />
+               Stat&Mat
+            </a>
+            <nav>
+               <a href="#Onama" class="desktop-only">About</a>
+               <a href="#features" class="desktop-only">What to expect</a>
+               <a href="#kontakt">Contact</a>
+               <a href="/register" id="register-link">Register</a>
+               <a href="/login" id="login-link">Login</a>
+               <a
+                  href="/math-first-exam"
+                  id="math-first-exam-link"
+                  style="display: none"
+                  >Mathematics - First Exam</a
+               >
+               <a
+                  href="/math-second-exam"
+                  id="math-second-exam-link"
+                  style="display: none"
+                  >Mathematics - Second Exam</a
+               >
+               <a href="/logout" id="logout-link" style="display: none"
+                  >Logout</a
+               >
+            </nav>
+         </div>
+      </header>
+
+      <div class="hero">
+         <h1 id="hero-title">Welcome to Stat&Mat</h1>
+         <p>Advance your knowledge today!</p>
+         <div class="button-container" id="create-account-button">
+            <a href="/register" class="hero-button">Create an account</a>
+         </div>
+      </div>
+
+      <div class="subscription-container">
+         <div class="plan-box">
+            <h3>Mathematics - First Exam</h3>
+            <button onclick="window.location.href='/math1'">Learn more</button>
+         </div>
+
+         <div class="plan-box">
+            <h3>Mathematics - Second Exam</h3>
+            <button onclick="window.location.href='/math2'">Learn more</button>
+         </div>
+
+         <div class="plan-box">
+            <h3>Statistics - First Exam</h3>
+            <button onclick="window.location.href='/statistics1'">
+               Learn more
+            </button>
+         </div>
+
+         <div class="plan-box">
+            <h3>Statistics - Second Exam</h3>
+            <button onclick="window.location.href='/statistics2'">
+               Learn more
+            </button>
+         </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <section id="Onama" class="info-section">
+         <h2>About</h2>
+         <p>
+            I am Jurica, a student at FER. My passion for mathematics and
+            statistics, and my desire to help classmates, inspired me to create
+            this website. My mission is simple: to help students of the Faculty
+            of Economics (and any other students studying mathematics and
+            statistics) learn these subjects more easily and effectively.
+         </p>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <section id="features" class="info-section">
+         <h2>What to expect?</h2>
+         <p>
+            In addition to video lessons, we offer several ways to support
+            students:
+         </p>
+         <ul>
+            <li>Task explanations via email</li>
+            <li>Solutions for tasks not covered on the site</li>
+            <li>One-on-one consultations</li>
+            <li>Exam preparation</li>
+         </ul>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <section id="kontakt" class="info-section">
+         <h2>Contact</h2>
+         <div class="kontakt-content">
+            <div class="w-[150px] h-[150px]">
+               <img
+                  src="/sprites/whatsapp.jpg"
+                  alt="QR Code"
+                  class="w-[150px] h-[150px] object-contain"
+               />
+            </div>
+            <div>
+               <p>Have questions or need help?</p>
+               <ul>
+                  <li>Email: statandmat@gmail.hr</li>
+                  <li>WhatsApp: +385 98 167 4727</li>
+               </ul>
+            </div>
+         </div>
+      </section>
+
+      <div class="section-divider"></div>
+      <footer>
+         <p>&copy; 2024 Stat&Mat. All rights reserved.</p>
+         <div class="footer-links">
+            <a href="#Onama">About</a>
+            <a href="#features">What to expect?</a>
+            <a href="#kontakt">Contact</a>
+         </div>
+      </footer>
+
+      <script>
+         // Check if user is logged in
+         fetch("/api/check-login")
+            .then((response) => response.json())
+            .then((data) => {
+               if (data.loggedIn) {
+                  const username = data.username;
+                  document.querySelector(
+                     ".hero h1"
+                  ).textContent = `Welcome back, ${username}`;
+                  document.querySelector(".hero-button").style.display = "none";
+                  document.getElementById("logout-link").style.display =
+                     "inline";
+                  document.getElementById("login-link").style.display = "none";
+                  document.getElementById("register-link").style.display =
+                     "none";
+
+                  //check if user is subscribed to Matematika - prvi kol
+                  fetch("/api/subscription-status1")
+                     .then((response) => {
+                        if (!response.ok) {
+                           throw new Error(
+                              "Failed to fetch subscription status"
+                           );
+                        }
+                        return response.json();
+                     })
+                     .then((data) => {
+                        if (data.isSubscribed1) {
+                           document.getElementById(
+                              "math-first-exam-link"
+                           ).style.display = "inline";
+                        }
+                     })
+                     .catch((error) => {
+                        console.error("Error:", error);
+                     });
+
+                  //check if user is subscribed to Matematika - drugi kol
+                  fetch("/api/subscription-status2")
+                     .then((response) => {
+                        if (!response.ok) {
+                           throw new Error(
+                              "Failed to fetch subscription status"
+                           );
+                        }
+                        return response.json();
+                     })
+                     .then((data) => {
+                        if (data.isSubscribed2) {
+                           document.getElementById(
+                              "math-second-exam-link"
+                           ).style.display = "inline";
+                        }
+                     })
+                     .catch((error) => {
+                        console.error("Error:", error);
+                     });
+               }
+            })
+            .catch((error) => {
+               console.error("Error checking login status:", error);
+            });
+
+         // Logout function
+         document
+            .getElementById("logout-link")
+            .addEventListener("click", function (event) {
+               event.preventDefault();
+
+               fetch("/api/logout", {
+                  method: "POST",
+                  headers: {
+                     "Content-Type": "application/json",
+                  },
+               })
+                  .then((response) => {
+                     if (response.ok) {
+                        alert("Logout successful!");
+                        window.location.href = "/";
+                     } else {
+                        alert("Logout failed. Please try again.");
+                     }
+                  })
+                  .catch((error) =>
+                     console.error("Error during logout:", error)
+                  );
+            });
+
+         // Smooth scroll for anchor links
+         document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+            anchor.addEventListener("click", function (e) {
+               e.preventDefault();
+               const targetId = this.getAttribute("href").substring(1);
+               const targetElement = document.getElementById(targetId);
+               if (targetElement) {
+                  const headerOffset = 80; // Adjust this value based on your header height
+                  const elementPosition =
+                     targetElement.getBoundingClientRect().top;
+                  const offsetPosition =
+                     elementPosition + window.pageYOffset - headerOffset;
+
+                  window.scrollTo({
+                     top: offsetPosition,
+                     behavior: "smooth",
+                  });
+               }
+            });
+         });
+         // Ask Perplexity (chatbot) script removed
+      </script>
+   </body>
+</html>

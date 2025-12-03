@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link
+         href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+         rel="stylesheet"
+      />
+      <title>Confirm your email</title>
+      <style>
+         body {
+            font-family: "Poppins", sans-serif;
+            background-color: #e8e8e8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #1e293b;
+            text-align: center;
+         }
+
+         .container {
+            max-width: 400px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+         }
+
+         h1 {
+            color: #2563eb;
+            margin-bottom: 10px;
+         }
+
+         p {
+            margin: 15px 0;
+            font-size: 18px;
+            line-height: 1.5;
+         }
+
+         .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            animation: spin 1s linear infinite;
+         }
+
+         @keyframes spin {
+            0% {
+               transform: rotate(0deg);
+            }
+            100% {
+               transform: rotate(360deg);
+            }
+         }
+
+         #resendEmailButton {
+            display: block;
+            margin: 20px 0;
+            padding: 12px 15px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+         }
+
+         #resendEmailButton:hover {
+            background-color: #1d4ed8;
+         }
+
+         #emailInput {
+            display: block;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 16px;
+         }
+
+         #secondaryButton {
+            margin: 15px 0;
+            display: block;
+            padding: 14px 15px; /* Increased padding for taller button */
+            border: none;
+            background-color: #e2e8f0;
+            color: #374151;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+         }
+
+         #secondaryButton:hover {
+            background-color: #cbd5e1;
+         }
+
+         #resendStatus {
+            margin-top: 10px;
+            color: red;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="container">
+         <h1>Confirm your email</h1>
+         <p>
+            An email with a confirmation link has been sent to your address. If
+            you don't see it, please check your spam folder.
+         </p>
+         <div class="loader"></div>
+         <p>
+            If you still don't see the confirmation email, enter the email you
+            registered with so we can resend it.
+         </p>
+         <input
+            type="email"
+            id="emailInput"
+            placeholder="Enter your email address"
+         />
+         <button id="resendEmailButton">Resend confirmation email</button>
+         <a id="secondaryButton" href="/login"
+            >I have already confirmed my email</a
+         >
+         <div id="resendStatus"></div>
+      </div>
+
+      <script>
+         document
+            .getElementById("resendEmailButton")
+            .addEventListener("click", async () => {
+               try {
+                  const emailInput = document.getElementById("emailInput");
+                  const email = emailInput.value.trim();
+
+                  if (!email) {
+                     alert("Please enter your email address.");
+                     return;
+                  }
+
+                  const response = await fetch("/resend-email", {
+                     method: "POST",
+                     headers: {
+                        "Content-Type": "application/json",
+                     },
+                     body: JSON.stringify({ emails: [email] }),
+                  });
+
+                  const result = await response.json();
+
+                  if (response.ok) {
+                     alert(result.message);
+                     emailInput.value = ""; // Clear the input field after success
+                  } else {
+                     throw new Error(
+                        result.error ||
+                           "An error occurred. Please try again later."
+                     );
+                  }
+               } catch (error) {
+                  console.error("Error:", error);
+                  document.getElementById("resendStatus").innerText =
+                     error.message;
+               }
+            });
+      </script>
+   </body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Matematika - Drugi Kolokvij</title>
+      <link
+         href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+         rel="stylesheet"
+      />
+      <style>
+         :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #2563eb;
+            --background-color: #e8e8e8;
+            --text-color: #1e293b;
+            --card-background: #ffffff;
+         }
+
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+         }
+
+         body {
+            font-family: "Poppins", sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+         }
+
+         .container {
+            background-color: var(--card-background);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in-out forwards;
+         }
+
+         @keyframes fadeIn {
+            from {
+               opacity: 0;
+               transform: translateY(20px);
+            }
+            to {
+               opacity: 1;
+               transform: translateY(0);
+            }
+         }
+
+         .container:hover {
+            transform: translateY(-5px);
+         }
+
+         h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            font-weight: 600;
+         }
+
+         h2 {
+            color: var(--secondary-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            font-weight: 600;
+         }
+
+         p {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            opacity: 0.9;
+         }
+
+         .price {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+         }
+
+         .buy-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+            letter-spacing: 1px;
+         }
+
+         .buy-button:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+         }
+
+         .buy-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+         }
+
+         .lesson-list {
+            text-align: left;
+            margin-bottom: 20px;
+            list-style-position: inside;
+         }
+
+         .lesson-list li {
+            margin-bottom: 10px;
+         }
+
+         @media (max-width: 600px) {
+            .container {
+               padding: 30px;
+               width: 90%;
+            }
+            h1 {
+               font-size: 2rem;
+            }
+            h2 {
+               font-size: 1.5rem;
+            }
+         }
+      </style>
+   </head>
+   <body>
+      <div class="container">
+         <h1>Matematika - Drugi Kolokvij</h1>
+
+         <p class="price">Price: €20.00</p>
+         <p>
+            Prepare for the second mathematics exam with our comprehensive
+            learning package. This bundle is designed to help you master the
+            material and excel in your course.
+         </p>
+
+         <h2>Contents of the video lessons</h2>
+         <ul class="lesson-list">
+            <li>
+               <strong>Matrices:</strong> Learn matrix operations, determinants,
+               and their application to solving linear systems.
+            </li>
+            <li>
+               <strong>Single-variable functions:</strong> Explore
+               single-variable functions including limits, continuity, and
+               differentiation.
+            </li>
+         </ul>
+
+         <h2>Total lesson duration</h2>
+         <p>Total duration of lessons: <strong>30 hours</strong></p>
+
+         <h2 style="color: red">Payment information</h2>
+         <p>
+            We use Stripe to securely process payments on our website. Stripe
+            provides industry-standard security measures to protect customer
+            payment data.
+         </p>
+         <p>
+            You can choose from multiple payment methods supported by Stripe,
+            including card payments (Visa, Mastercard, American Express).
+         </p>
+         <p style="color: red; font-weight: bold">
+            Our service allows access from up to two devices per user account.
+            Sharing an account across more than two devices is not permitted to
+            protect intellectual property and ensure fair use.
+         </p>
+         <form action="/checkout2" method="post">
+            <button type="submit" class="buy-button">Activate</button>
+         </form>
+      </div>
+   </body>
+</html>
