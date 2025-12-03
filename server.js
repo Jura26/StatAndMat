@@ -275,7 +275,10 @@ try {
 
 // Unified sendMail helper: uses SendGrid when available, otherwise Nodemailer
 async function sendMail({ from, to, subject, html, attachments }) {
+   console.log(`Attempting to send email to: ${to}, from: ${from}`);
+
    if (process.env.SENDGRID_API_KEY && sgMail) {
+      console.log("Using SendGrid to send email...");
       const msg = {
          to,
          from: from || process.env.EMAIL_USER,
@@ -293,8 +296,19 @@ async function sendMail({ from, to, subject, html, attachments }) {
          }));
       }
 
-      return sgMail.send(msg);
+      try {
+         const result = await sgMail.send(msg);
+         console.log("SendGrid email sent successfully:", result[0].statusCode);
+         return result;
+      } catch (error) {
+         console.error(
+            "SendGrid error:",
+            error.response?.body || error.message
+         );
+         throw error;
+      }
    } else {
+      console.log("Using Nodemailer SMTP to send email...");
       return transporter.sendMail({ from, to, subject, html, attachments });
    }
 }
