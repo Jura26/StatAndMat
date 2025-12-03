@@ -350,7 +350,7 @@ app.post("/api/register", async (req, res) => {
 
       // Send confirmation email
       sendMail({
-         from: '"Stat&Mat" <your-email@gmail.com>',
+         from: `"Stat&Mat" <${process.env.EMAIL_USER}>`,
          to: email,
          subject: "Email address confirmation",
          html: `
@@ -450,7 +450,7 @@ app.post("/resend-email", async (req, res) => {
 
          // Send confirmation email
          sendMail({
-            from: '"Stat&Mat" <your-email@gmail.com>',
+            from: `"Stat&Mat" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: "Email address confirmation",
             html: `
@@ -730,7 +730,7 @@ app.get("/complete1", async (req, res) => {
 
          // Send email
          const mailOptions = {
-            from: '"Stat&Mat" <your-email@gmail.com>',
+            from: `"Stat&Mat" <${process.env.EMAIL_USER}>`,
             to: session.customer_details?.email,
             subject: "Thank you for your purchase!",
             html: `<!DOCTYPE html>
@@ -978,7 +978,7 @@ app.get("/complete2", async (req, res) => {
 
          // Send email
          const mailOptions = {
-            from: '"Stat&Mat" <your-email@gmail.com>',
+            from: `"Stat&Mat" <${process.env.EMAIL_USER}>`,
             to: session.customer_details?.email,
             subject: "Thank you for your purchase!",
             html: `<!DOCTYPE html>
