@@ -24,8 +24,19 @@ const PORT = process.env.PORT || 3000;
 const mongoURI = `${process.env.MONGODB_URI}`;
 mongoose
    .connect(mongoURI)
-   .then(() => app.listen(PORT, () => console.log("Server started")))
-   .catch((err) => console.log(err));
+   .then(() => {
+      app.listen(PORT, () => {
+         console.log(`Server started on port ${PORT}`);
+         console.log(`BASE_URL=${process.env.BASE_URL || "(not set)"}`);
+      });
+   })
+   .catch((err) => console.log("MongoDB connection error:", err));
+
+// Simple request logger to help diagnose 404 / Not Found issues on Render
+app.use((req, res, next) => {
+   console.log(new Date().toISOString(), req.method, req.originalUrl);
+   next();
+});
 
 // Middleware
 app.use(express.json());
@@ -234,7 +245,17 @@ const transporter = nodemailer.createTransport({
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
    },
+   // increase timeouts to reduce ETIMEDOUT on slower networks
+   connectionTimeout: 30000,
+   greetingTimeout: 30000,
+   socketTimeout: 30000,
 });
+
+// Verify transporter at startup and log detailed errors to help diagnose Render failures
+transporter
+   .verify()
+   .then(() => console.log("SMTP transporter verified and ready"))
+   .catch((err) => console.error("SMTP transporter verification failed:", err));
 
 app.post("/api/register", async (req, res) => {
    try {
