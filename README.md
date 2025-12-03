@@ -1,118 +1,397 @@
-# Stat&Mat (webstranicaV2)
+# Stat&Mat
 
-Lightweight Node/Express site for offering mathematics and statistics video courses and subscriptions.
+A full-stack web application for delivering mathematics and statistics video courses with user authentication, subscription payments, and protected content streaming.
 
-# Stat&Mat (webstranicaV2)
+## 🚀 Live Demo
 
-Professional, minimal web platform for delivering mathematics and statistics video lessons. The app includes user registration, email confirmation, Google OAuth sign-in, subscription payments via Stripe, and protected video streaming.
+Deployed on [Render](https://statandmat-mcht.onrender.com) as a Web Service.
 
-## Tech stack
+---
 
--  Node.js + Express
--  MongoDB (Mongoose)
--  EJS + static frontend (under `public/`)
--  Stripe Checkout for payments
--  nodemailer for outgoing email
--  passport-google-oauth20 for Google sign-in
+## 📋 Table of Contents
 
-## Highlights / Features
+-  [Tech Stack](#-tech-stack)
+-  [Architecture](#-architecture)
+-  [Features](#-features)
+-  [Email Strategy](#-email-strategy)
+-  [Authentication Flow](#-authentication-flow)
+-  [Payment Integration](#-payment-integration)
+-  [Project Structure](#-project-structure)
+-  [Environment Variables](#-environment-variables)
+-  [Local Development](#-local-development)
+-  [Deployment](#-deployment)
+-  [API Endpoints](#-api-endpoints)
 
--  User registration with email confirmation (JWT-signed tokens).
--  Google OAuth sign-in and session management.
--  Session persistence in MongoDB via `connect-mongo`.
--  Stripe Checkout integration for paid subscriptions.
--  Protected video streaming via proxy endpoints that enforce subscription checks.
--  Device registration per user to limit how many distinct devices a user can register.
-   -  Default device limit in server logic: 2 devices. To allow 3 devices, update the numeric checks in `server.js` (search for `user.devices.length >= 2` and change `2` to `3`).
--  Responsive frontend served from `public/` with a few EJS templates under `views/`.
+---
 
-## Repository layout
+## 🛠 Tech Stack
 
--  `server.js` — main Express application, routes, auth, and payments
--  `models/user.js` — Mongoose schema for users and device records
--  `public/` — static frontend HTML/CSS/JS
--  `views/` — EJS templates
--  `.env` — environment variables (local, not committed)
+### Backend
 
-## Environment variables
+| Technology     | Purpose                                        |
+| -------------- | ---------------------------------------------- |
+| **Node.js**    | JavaScript runtime                             |
+| **Express.js** | Web framework for routing, middleware, and API |
+| **MongoDB**    | NoSQL database for user data and subscriptions |
+| **Mongoose**   | MongoDB ODM for schema modeling and validation |
 
-Create a `.env` file at the project root (next to `server.js`). The app expects these keys:
+### Authentication & Security
 
--  `NODE_ENV` — `development` or `production`
--  `PORT` — server port (default `3000`)
--  `BASE_URL` — full app URL (e.g. `http://localhost:3000`)
--  `MONGODB_URI` — MongoDB connection string (local or Atlas)
--  `STRIPE_SECRET_KEY` — Stripe secret key (`sk_test_...` for development)
--  `EMAIL_SECRET` — JWT secret for email tokens
--  `RANDOM_ENCRYPT` — 32-character base64 (or 32-byte hex) key used for AES encryption
--  `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASS` — SMTP configuration for nodemailer
--  `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — Google OAuth credentials
+| Technology                  | Purpose                              |
+| --------------------------- | ------------------------------------ |
+| **Passport.js**             | Authentication middleware            |
+| **passport-google-oauth20** | Google OAuth 2.0 strategy            |
+| **JSON Web Tokens (JWT)**   | Email confirmation tokens            |
+| **bcrypt**                  | Password hashing                     |
+| **express-session**         | Session management                   |
+| **connect-mongo**           | MongoDB session store                |
+| **AES Encryption**          | Device IP encryption (crypto module) |
 
-Example (sanitized) `.env` snippet:
+### Email Services
+
+| Technology       | Purpose                                |
+| ---------------- | -------------------------------------- |
+| **Nodemailer**   | SMTP email transport (local/fallback)  |
+| **SendGrid API** | HTTP-based email delivery (production) |
+
+### Payments
+
+| Technology          | Purpose                       |
+| ------------------- | ----------------------------- |
+| **Stripe Checkout** | Secure payment processing     |
+| **Stripe Webhooks** | Payment confirmation handling |
+
+### Frontend
+
+| Technology              | Purpose                |
+| ----------------------- | ---------------------- |
+| **EJS**                 | Server-side templating |
+| **HTML/CSS/JavaScript** | Static frontend pages  |
+| **Responsive Design**   | Mobile-friendly UI     |
+
+### DevOps & Deployment
+
+| Technology        | Purpose                         |
+| ----------------- | ------------------------------- |
+| **Render**        | Cloud hosting (Web Service)     |
+| **MongoDB Atlas** | Cloud database hosting          |
+| **Git/GitHub**    | Version control                 |
+| **dotenv**        | Environment variable management |
+
+---
+
+## 🏗 Architecture
 
 ```
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│                 │     │                  │     │                 │
+│   Client        │─ ──▶│   Express.js     │────▶│   MongoDB       │
+│   (Browser)     │     │   Server         │     │   Atlas         │
+│                 │◀────│                  │◀────│                 │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+                               │
+                               │
+              ┌────────────────┼────────────────┐
+              │                │                │
+              ▼                ▼                ▼
+       ┌──────────┐    ┌──────────────┐   ┌──────────┐
+       │ SendGrid │    │    Stripe    │   │  Google  │
+       │   API    │    │   Checkout   │   │  OAuth   │
+       └──────────┘    └──────────────┘   └──────────┘
+```
+
+---
+
+## ✨ Features
+
+-  **User Registration** with email confirmation (JWT-signed tokens)
+-  **Google OAuth 2.0** sign-in integration
+-  **Session Persistence** in MongoDB via connect-mongo
+-  **Stripe Checkout** for subscription payments
+-  **Protected Video Streaming** via proxy endpoints with subscription validation
+-  **Device Limiting** - restrict account sharing (default: 2 devices per user)
+-  **Encrypted Device Tracking** - AES-encrypted IP addresses
+-  **Responsive UI** - works on desktop and mobile
+
+---
+
+## 📧 Email Strategy
+
+The application implements a **dual-transport email system** to ensure reliable email delivery across different hosting environments.
+
+### The Problem
+
+Many cloud hosting providers (Render, Heroku, AWS, etc.) **block outbound SMTP connections** on ports 25, 465, and 587 to prevent spam abuse. This causes `ETIMEDOUT` errors when trying to send emails via traditional SMTP.
+
+### The Solution
+
+```javascript
+// Unified sendMail helper with automatic fallback
+async function sendMail({ from, to, subject, html, attachments }) {
+   if (process.env.SENDGRID_API_KEY && sgMail) {
+      // Production: Use SendGrid HTTP API (port 443 - not blocked)
+      return sgMail.send(msg);
+   } else {
+      // Development: Use Nodemailer SMTP
+      return transporter.sendMail({ from, to, subject, html, attachments });
+   }
+}
+```
+
+### How It Works
+
+| Environment             | Email Transport   | Port        | Why                                 |
+| ----------------------- | ----------------- | ----------- | ----------------------------------- |
+| **Local Development**   | Nodemailer SMTP   | 465 (SSL)   | Direct SMTP works on local machines |
+| **Production (Render)** | SendGrid HTTP API | 443 (HTTPS) | HTTP requests bypass SMTP blocks    |
+
+### Configuration
+
+**Local Development** (`.env`):
+
+```env
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=465
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+```
+
+**Production** (Render Environment Variables):
+
+```env
+SENDGRID_API_KEY=SG.xxxxx
+EMAIL_USER=your-verified-sender@gmail.com
+```
+
+---
+
+## 🔐 Authentication Flow
+
+### Email/Password Registration
+
+```
+1. User submits registration form
+2. Server hashes password with bcrypt
+3. JWT token generated for email confirmation
+4. Confirmation email sent via SendGrid/Nodemailer
+5. User clicks link → account activated
+```
+
+### Google OAuth
+
+```
+1. User clicks "Sign in with Google"
+2. Redirect to Google consent screen
+3. Google returns auth code
+4. Server exchanges code for user profile
+5. User created/updated in database
+6. Session established
+```
+
+### Device Management
+
+```
+1. On login, server captures IP + User-Agent
+2. IP encrypted with AES before storage
+3. Device added to user's devices array
+4. If devices >= limit, login rejected
+```
+
+---
+
+## 💳 Payment Integration
+
+### Stripe Checkout Flow
+
+```
+1. User clicks "Subscribe" button
+2. Server creates Stripe Checkout Session
+3. User redirected to Stripe's hosted payment page
+4. After payment, redirected to success URL
+5. Server verifies session and grants access
+```
+
+### Subscription Types
+
+-  **Mathematics - First Exam** (`/checkout1`)
+-  **Mathematics - Second Exam** (`/checkout2`)
+
+---
+
+## 📁 Project Structure
+
+```
+statandmat/
+├── server.js           # Main Express application
+├── package.json        # Dependencies and scripts
+├── .env                # Environment variables (not committed)
+├── nodemon.json        # Nodemon configuration
+├── Web.config          # IIS configuration (if needed)
+│
+├── models/
+│   └── user.js         # Mongoose user schema
+│
+├── views/
+│   ├── loading.ejs     # Loading/redirect page
+│   ├── math1.ejs       # Math course 1 content
+│   ├── math2.ejs       # Math course 2 content
+│   ├── statistics1.ejs # Statistics course 1
+│   └── statistics2.ejs # Statistics course 2
+│
+├── public/
+│   ├── main.html       # Homepage
+│   ├── login.html      # Login page
+│   ├── register.html   # Registration page
+│   ├── mathFirstExam.html
+│   ├── mathSecondExam.html
+│   └── sprites/        # Images and icons
+│
+└── data/
+    └── users.json      # (Legacy/backup data)
+```
+
+---
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+# App Configuration
 NODE_ENV=development
 PORT=3000
 BASE_URL=http://localhost:3000
-MONGODB_URI=mongodb://localhost:27017/statandmat
-STRIPE_SECRET_KEY=sk_test_xxx
-EMAIL_SECRET=your_jwt_secret_here
-RANDOM_ENCRYPT=base64_or_hex_key_here
+
+# Database
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/statandmat
+
+# Authentication
+EMAIL_SECRET=your-jwt-secret-for-email-tokens
+RANDOM_ENCRYPT=32-character-base64-or-hex-key
+
+# Email (SMTP - for local development)
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=465
-EMAIL_USER=you@example.com
-EMAIL_PASS=app_password_here
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-specific-password
+
+# Email (SendGrid - for production)
+SENDGRID_API_KEY=SG.your-api-key
+
+# OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Payments
+STRIPE_SECRET_KEY=sk_test_your-stripe-key
 ```
 
-> IMPORTANT: never commit `.env` to source control. Add it to `.gitignore`.
+> ⚠️ **Never commit `.env` to version control!**
 
-## Setup & run (development)
+---
 
-1. Install dependencies
+## 🖥 Local Development
 
-```powershell
-npm install
-```
+1. **Clone the repository**
 
-2. Create and populate `.env` (see above).
+   ```bash
+   git clone https://github.com/Jura26/StatAndMat.git
+   cd StatAndMat
+   ```
 
-3. Start the server
+2. **Install dependencies**
 
-```powershell
-npm start
-# or
-node server.js
-```
+   ```bash
+   npm install
+   ```
 
-4. Open your browser to `http://localhost:3000` (or your configured `BASE_URL`).
+3. **Create `.env` file** (see above)
 
-## Important endpoints
+4. **Start the server**
 
--  `POST /api/register` — register a user; sends confirmation email
--  `GET /confirmation/:token` — confirm email address
--  `POST /api/login` — login (username/email + password)
--  `POST /api/logout` — log out and destroy session
--  `GET /api/check-login` — returns session login state
--  `POST /checkout1`, `POST /checkout2` — create Stripe Checkout sessions
--  `GET /proxy/1video`, `GET /proxy/2video` — proxy video endpoints (subscription-protected)
+   ```bash
+   npm start
+   ```
 
-## Frontend
+5. **Open browser** to `http://localhost:3000`
 
-The frontend is a responsive static UI in `public/` (HTML/CSS/JS) with a few server-rendered EJS pages in `views/`. The homepage shows subscription plans, register/login flows, and conditionally displays links to subscription content when a user has access.
+---
 
-## Device registration / limit
+## 🚀 Deployment
 
-When users sign in the app records devices (IP + user agent) in the user's `devices` array. The server prevents registering more than the configured limit to avoid account sharing. The default hard-coded limit is `2` devices; change the limit by editing the numeric checks in `server.js` (both in Google OAuth handling and in the login flow).
+### Render (Recommended)
 
-## Stripe integration
+1. Create a **Web Service** (not Static Site)
+2. Connect your GitHub repository
+3. Configure:
+   -  **Build Command**: `npm install`
+   -  **Start Command**: `npm start`
+4. Add all environment variables in the Environment tab
+5. Deploy
 
--  Use **test** keys from the Stripe Dashboard for local development (enable **View test data**).
--  The app uses Stripe Checkout and redirects to success/cancel URLs configured with `BASE_URL`.
+### Required Production Environment Variables
 
-## Security notes
+| Variable               | Description                                               |
+| ---------------------- | --------------------------------------------------------- |
+| `NODE_ENV`             | `production`                                              |
+| `BASE_URL`             | Your Render URL (e.g., `https://statandmat.onrender.com`) |
+| `MONGODB_URI`          | MongoDB Atlas connection string                           |
+| `SENDGRID_API_KEY`     | SendGrid API key for emails                               |
+| `EMAIL_USER`           | Verified sender email                                     |
+| `EMAIL_SECRET`         | JWT secret                                                |
+| `RANDOM_ENCRYPT`       | AES encryption key                                        |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID                                    |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth secret                                       |
+| `STRIPE_SECRET_KEY`    | Stripe secret key                                         |
 
--  Keep all secrets out of version control. Use your host's secret manager in production.
--  Use app-specific passwords for mail providers (Gmail) and enable 2FA.
--  Regenerate API keys if you suspect a leak.
+---
+
+## 🔌 API Endpoints
+
+### Authentication
+
+| Method | Endpoint               | Description                 |
+| ------ | ---------------------- | --------------------------- |
+| `POST` | `/api/register`        | Register new user           |
+| `GET`  | `/confirmation/:token` | Confirm email               |
+| `POST` | `/api/login`           | Login with credentials      |
+| `POST` | `/api/logout`          | Logout and destroy session  |
+| `GET`  | `/api/check-login`     | Check authentication status |
+| `POST` | `/resend-email`        | Resend confirmation email   |
+
+### OAuth
+
+| Method | Endpoint                | Description           |
+| ------ | ----------------------- | --------------------- |
+| `GET`  | `/auth/google`          | Initiate Google OAuth |
+| `GET`  | `/auth/google/callback` | OAuth callback        |
+
+### Payments
+
+| Method | Endpoint     | Description                |
+| ------ | ------------ | -------------------------- |
+| `POST` | `/checkout1` | Create checkout for Math 1 |
+| `POST` | `/checkout2` | Create checkout for Math 2 |
+| `GET`  | `/complete1` | Payment success (Math 1)   |
+| `GET`  | `/complete2` | Payment success (Math 2)   |
+
+### Protected Content
+
+| Method | Endpoint        | Description         |
+| ------ | --------------- | ------------------- |
+| `GET`  | `/math1`        | Math course 1 page  |
+| `GET`  | `/math2`        | Math course 2 page  |
+| `GET`  | `/proxy/1video` | Stream Math 1 video |
+| `GET`  | `/proxy/2video` | Stream Math 2 video |
+
+---
+
+## 📄 License
+
+ISC
+
+---
+
+## 👤 Author
+
+**Jurica Slibar** - [GitHub](https://github.com/Jura26)
