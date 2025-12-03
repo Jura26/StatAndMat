@@ -261,6 +261,44 @@ transporter
    .then(() => console.log("SMTP transporter verified and ready"))
    .catch((err) => console.error("SMTP transporter verification failed:", err));
 
+// SendGrid fallback: if SENDGRID_API_KEY present, use SendGrid HTTP API.
+let sgMail;
+try {
+   sgMail = require("@sendgrid/mail");
+   if (process.env.SENDGRID_API_KEY) {
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      console.log("SendGrid enabled as email transport");
+   }
+} catch (e) {
+   // package may not be installed locally; will fail if used without dependency
+}
+
+// Unified sendMail helper: uses SendGrid when available, otherwise Nodemailer
+async function sendMail({ from, to, subject, html, attachments }) {
+   if (process.env.SENDGRID_API_KEY && sgMail) {
+      const msg = {
+         to,
+         from: from || process.env.EMAIL_USER,
+         subject,
+         html,
+      };
+
+      if (attachments && attachments.length) {
+         msg.attachments = attachments.map((a) => ({
+            content: require("fs").readFileSync(a.path).toString("base64"),
+            filename: a.filename,
+            type: a.contentType || "application/octet-stream",
+            disposition: a.disposition || "inline",
+            content_id: a.cid || undefined,
+         }));
+      }
+
+      return sgMail.send(msg);
+   } else {
+      return transporter.sendMail({ from, to, subject, html, attachments });
+   }
+}
+
 app.post("/api/register", async (req, res) => {
    try {
       const { username, email, password } = req.body;
@@ -311,7 +349,7 @@ app.post("/api/register", async (req, res) => {
       const url = `${process.env.BASE_URL}/confirmation/${emailToken}`;
 
       // Send confirmation email
-      transporter.sendMail({
+      sendMail({
          from: '"Stat&Mat" <your-email@gmail.com>',
          to: email,
          subject: "Email address confirmation",
@@ -340,7 +378,9 @@ app.post("/api/register", async (req, res) => {
                cid: "logo",
             },
          ],
-      });
+      }).catch((err) =>
+         console.error("Error sending confirmation email:", err)
+      );
 
       // Send JSON response
       res.json({
@@ -409,7 +449,7 @@ app.post("/resend-email", async (req, res) => {
          const url = `${process.env.BASE_URL}/confirmation/${emailToken}`;
 
          // Send confirmation email
-         transporter.sendMail({
+         sendMail({
             from: '"Stat&Mat" <your-email@gmail.com>',
             to: email,
             subject: "Email address confirmation",
@@ -509,12 +549,10 @@ app.post("/api/login", async (req, res) => {
          }
       }
 
-      if (!sessionSet) {
-         return res.status(400).json({
-            error: "Maximum device limit reached",
-            message: "Maximum number of devices (2) reached for this account.",
-         });
-      }
+      return res.status(400).json({
+         error: "Maximum device limit reached",
+         message: "Maximum number of devices (2) reached for this account.",
+      });
    } catch (error) {
       console.error("Login error:", error);
       res.status(500).json({ error: "Server error" });
@@ -774,7 +812,9 @@ app.get("/complete1", async (req, res) => {
             ],
          };
 
-         transporter.sendMail(mailOptions);
+         sendMail(mailOptions).catch((err) =>
+            console.error("Error sending purchase confirmation email:", err)
+         );
 
          res.send(`
             <!DOCTYPE html>
@@ -1020,7 +1060,9 @@ app.get("/complete2", async (req, res) => {
             ],
          };
 
-         transporter.sendMail(mailOptions);
+         sendMail(mailOptions).catch((err) =>
+            console.error("Error sending purchase confirmation email:", err)
+         );
 
          res.send(`
             <!DOCTYPE html>
