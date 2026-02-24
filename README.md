@@ -10,17 +10,18 @@ Deployed on [Render](https://statandmat-mcht.onrender.com) as a Web Service.
 
 ## 📋 Table of Contents
 
--  [Tech Stack](#-tech-stack)
--  [Architecture](#-architecture)
--  [Features](#-features)
--  [Email Strategy](#-email-strategy)
--  [Authentication Flow](#-authentication-flow)
--  [Payment Integration](#-payment-integration)
--  [Project Structure](#-project-structure)
--  [Environment Variables](#-environment-variables)
--  [Local Development](#-local-development)
--  [Deployment](#-deployment)
--  [API Endpoints](#-api-endpoints)
+- [Tech Stack](#-tech-stack)
+- [Screenshots](#-screenshots)
+- [Architecture](#-architecture)
+- [Features](#-features)
+- [Email Strategy](#-email-strategy)
+- [Authentication Flow](#-authentication-flow)
+- [Device Management](#-device-management)
+- [Payment Integration](#-payment-integration)
+- [Environment Variables](#-environment-variables)
+- [Local Development](#-local-development)
+- [Deployment](#-deployment)
+- [API Endpoints](#-api-endpoints)
 
 ---
 
@@ -28,55 +29,47 @@ Deployed on [Render](https://statandmat-mcht.onrender.com) as a Web Service.
 
 ### Backend
 
-| Technology     | Purpose                                        |
-| -------------- | ---------------------------------------------- |
-| **Node.js**    | JavaScript runtime                             |
-| **Express.js** | Web framework for routing, middleware, and API |
-| **MongoDB**    | NoSQL database for user data and subscriptions |
-| **Mongoose**   | MongoDB ODM for schema modeling and validation |
+- **Node.js & Express.js**: The core of the application is built on Node.js, utilizing Express.js as the web framework. Express was chosen for its minimalist approach, robust routing capabilities, and extensive middleware ecosystem, which makes handling API requests, serving static files, and managing authentication flows straightforward.
+- **MongoDB & Mongoose**: MongoDB serves as the primary NoSQL database. It was chosen because its document-oriented structure perfectly aligns with the application's need to store flexible, JSON-like user profiles, dynamic subscription statuses, and arrays of encrypted device identifiers. Mongoose is used as the Object Data Modeling (ODM) library to enforce schema validation, manage relationships, and simplify database queries, ensuring data integrity while maintaining MongoDB's inherent flexibility.
 
 ### Authentication & Security
 
-| Technology                  | Purpose                              |
-| --------------------------- | ------------------------------------ |
-| **Passport.js**             | Authentication middleware            |
-| **passport-google-oauth20** | Google OAuth 2.0 strategy            |
-| **JSON Web Tokens (JWT)**   | Email confirmation tokens            |
-| **bcrypt**                  | Password hashing                     |
-| **express-session**         | Session management                   |
-| **connect-mongo**           | MongoDB session store                |
-| **AES Encryption**          | Device IP encryption (crypto module) |
+- **Passport.js**: Implemented for robust authentication middleware, specifically utilizing the `passport-google-oauth20` strategy to allow users a seamless sign-in experience using their Google accounts.
+- **JSON Web Tokens (JWT)**: Used for generating secure, time-limited tokens for email confirmation links during the registration process.
+- **bcrypt**: Ensures user passwords are securely hashed and salted before being stored in the database, protecting against data breaches.
+- **express-session & connect-mongo**: Manages user sessions persistently by storing session data in MongoDB, ensuring users remain logged in even if the server restarts.
+- **AES Encryption**: The native Node.js `crypto` module is used to encrypt sensitive user data, such as IP addresses, before storing them in the database, adding an extra layer of privacy and security.
 
 ### Email Services
 
-| Technology       | Purpose                                |
-| ---------------- | -------------------------------------- |
-| **Nodemailer**   | SMTP email transport (local/fallback)  |
-| **SendGrid API** | HTTP-based email delivery (production) |
+- **Nodemailer & SendGrid API**: A dual-transport email system is implemented. Nodemailer handles local development testing via SMTP, while the SendGrid API is used in production to reliably deliver transactional emails (like registration confirmations) and bypass common cloud provider SMTP port blocks.
 
 ### Payments
 
-| Technology          | Purpose                       |
-| ------------------- | ----------------------------- |
-| **Stripe Checkout** | Secure payment processing     |
-| **Stripe Webhooks** | Payment confirmation handling |
+- **Stripe Checkout & Webhooks**: Stripe is integrated to handle secure payment processing for course subscriptions. Stripe Webhooks are utilized to asynchronously receive payment confirmations and automatically update the user's subscription status in the database without requiring manual intervention.
+
+### Video Streaming
+
+- **Bunny.net (Bunny Stream)**: Used as the primary video hosting and streaming service. Bunny Stream provides fast, globally distributed video delivery via its CDN, ensuring smooth playback for users regardless of their location. It also offers robust security features to protect the premium video content from unauthorized downloading or hotlinking.
 
 ### Frontend
 
-| Technology              | Purpose                |
-| ----------------------- | ---------------------- |
-| **EJS**                 | Server-side templating |
-| **HTML/CSS/JavaScript** | Static frontend pages  |
-| **Responsive Design**   | Mobile-friendly UI     |
+- **EJS (Embedded JavaScript templating)**: Used for server-side rendering of dynamic content, allowing the application to inject user data and subscription statuses directly into the HTML before sending it to the client.
+- **HTML/CSS/JavaScript**: Standard web technologies are used to build a responsive, mobile-friendly user interface that provides a smooth learning experience across all devices.
 
 ### DevOps & Deployment
 
-| Technology        | Purpose                         |
-| ----------------- | ------------------------------- |
-| **Render**        | Cloud hosting (Web Service)     |
-| **MongoDB Atlas** | Cloud database hosting          |
-| **Git/GitHub**    | Version control                 |
-| **dotenv**        | Environment variable management |
+- **Render**: The application is deployed as a Web Service on Render, providing continuous deployment from GitHub and automatic SSL certificate management.
+- **MongoDB Atlas**: Hosts the production database in the cloud, ensuring high availability, automated backups, and secure access controls.
+
+---
+
+## 📸 Screenshots
+
+<div align="center">
+  <img src="assets/pictures/landing.JPG" alt="Landing Page" width="800" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
+  <p><em>The main landing page showcasing available courses.</em></p>
+</div>
 
 ---
 
@@ -98,20 +91,26 @@ Deployed on [Render](https://statandmat-mcht.onrender.com) as a Web Service.
        │ SendGrid │    │    Stripe    │   │  Google  │
        │   API    │    │   Checkout   │   │  OAuth   │
        └──────────┘    └──────────────┘   └──────────┘
+                               │
+                               ▼
+                       ┌──────────────┐
+                       │  Bunny.net   │
+                       │   Stream     │
+                       └──────────────┘
 ```
 
 ---
 
 ## ✨ Features
 
--  **User Registration** with email confirmation (JWT-signed tokens)
--  **Google OAuth 2.0** sign-in integration
--  **Session Persistence** in MongoDB via connect-mongo
--  **Stripe Checkout** for subscription payments
--  **Protected Video Streaming** via proxy endpoints with subscription validation
--  **Device Limiting** - restrict account sharing (default: 2 devices per user)
--  **Encrypted Device Tracking** - AES-encrypted IP addresses
--  **Responsive UI** - works on desktop and mobile
+- **User Registration** with email confirmation (JWT-signed tokens)
+- **Google OAuth 2.0** sign-in integration
+- **Session Persistence** in MongoDB via connect-mongo
+- **Stripe Checkout** for subscription payments
+- **Protected Video Streaming** via Bunny.net with subscription validation
+- **Device Limiting** - restrict account sharing (default: 2 devices per user)
+- **Encrypted Device Tracking** - AES-encrypted IP addresses
+- **Responsive UI** - works on desktop and mobile
 
 ---
 
@@ -167,6 +166,11 @@ EMAIL_USER=your-verified-sender@gmail.com
 
 ## 🔐 Authentication Flow
 
+<div align="center">
+  <img src="assets/pictures/login.JPG" alt="Login Page" width="600" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
+  <p><em>Secure login portal supporting both email/password and Google OAuth.</em></p>
+</div>
+
 ### Email/Password Registration
 
 ```
@@ -188,18 +192,26 @@ EMAIL_USER=your-verified-sender@gmail.com
 6. Session established
 ```
 
-### Device Management
+## 📱 Device Management
 
-```
-1. On login, server captures IP + User-Agent
-2. IP encrypted with AES before storage
-3. Device added to user's devices array
-4. If devices >= limit, login rejected
-```
+To prevent account sharing and protect the premium video content, the application enforces a strict **2-device limit** per user account. This ensures that subscriptions are not shared among multiple users while still allowing a single user to access their content from, for example, a laptop and a mobile phone.
+
+### The Logic Behind It
+
+1. **Device Identification**: When a user attempts to log in, the server captures their IP address and `User-Agent` string to create a unique device identifier.
+2. **Privacy & Encryption**: For privacy and security, the IP address is encrypted using AES-256 encryption (via Node.js `crypto` module) before being stored in the MongoDB database. This ensures that even if the database is compromised, the raw IP addresses remain secure.
+3. **Device Tracking**: The encrypted device identifier is added to the user's `devices` array in the database.
+4. **Limit Enforcement**: During the login process, the system checks the user's `devices` array. If the device is new and the user already has 2 devices registered, the login attempt is rejected with an error message.
+5. **Session Management**: If the login is successful, the session is established and stored in MongoDB via `connect-mongo`, allowing the user to remain logged in on that specific device.
 
 ---
 
 ## 💳 Payment Integration
+
+<div align="center">
+  <img src="assets/pictures/math-first.JPG" alt="Math First Exam Course" width="800" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
+  <p><em>Course overview page where users can initiate the Stripe checkout process.</em></p>
+</div>
 
 ### Stripe Checkout Flow
 
@@ -213,42 +225,8 @@ EMAIL_USER=your-verified-sender@gmail.com
 
 ### Subscription Types
 
--  **Mathematics - First Exam** (`/checkout1`)
--  **Mathematics - Second Exam** (`/checkout2`)
-
----
-
-## 📁 Project Structure
-
-```
-statandmat/
-├── server.js           # Main Express application
-├── package.json        # Dependencies and scripts
-├── .env                # Environment variables (not committed)
-├── nodemon.json        # Nodemon configuration
-├── Web.config          # IIS configuration (if needed)
-│
-├── models/
-│   └── user.js         # Mongoose user schema
-│
-├── views/
-│   ├── loading.ejs     # Loading/redirect page
-│   ├── math1.ejs       # Math course 1 content
-│   ├── math2.ejs       # Math course 2 content
-│   ├── statistics1.ejs # Statistics course 1
-│   └── statistics2.ejs # Statistics course 2
-│
-├── public/
-│   ├── main.html       # Homepage
-│   ├── login.html      # Login page
-│   ├── register.html   # Registration page
-│   ├── mathFirstExam.html
-│   ├── mathSecondExam.html
-│   └── sprites/        # Images and icons
-│
-└── data/
-    └── users.json      # (Legacy/backup data)
-```
+- **Mathematics - First Exam** (`/checkout1`)
+- **Mathematics - Second Exam** (`/checkout2`)
 
 ---
 
@@ -324,8 +302,8 @@ STRIPE_SECRET_KEY=sk_test_your-stripe-key
 1. Create a **Web Service** (not Static Site)
 2. Connect your GitHub repository
 3. Configure:
-   -  **Build Command**: `npm install`
-   -  **Start Command**: `npm start`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
 4. Add all environment variables in the Environment tab
 5. Deploy
 
